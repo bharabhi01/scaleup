@@ -5,20 +5,19 @@ import (
 	"log"
 	"net/http"
 	"time"
+	"github.com/bharabhi01/scaleup/Backend/config"
+	"github.com/bharabhi01/scaleup/Backend/loadbalancer"
 )
 
 func main() {
-	cfg, err := config.LoadConfig()
-	if err != nil {
-		log.Fatalf("Error loading config: %v", err)
-	}
+	cfg := config.LoadConfig()
 
-	lb := loadBalancer.NewLoadBalancer(cfg.Servers)
+	lb := loadbalancer.NewLoadBalancer(cfg.Servers)
 
 	// Set up health checks
 	go func() {
 		for {
-			lb.PerformHeathChecks(cfg.HealthCheckInterval)
+			lb.PerformHealthChecks(cfg.HealthCheckInterval)
 			time.Sleep(cfg.HealthCheckInterval)
 		}
 	}()
@@ -31,7 +30,7 @@ func main() {
 			return
 		}
 
-		proxyUrl, err := fmt.Sprintf("http://%s%s", server.Address, r.URL.Path)
+		proxyUrl := fmt.Sprintf("http://%s %s", server.Address, r.URL.Path)
 		resp, err := http.Get(proxyUrl)
 		if err != nil {
 			http.Error(w, "Error proxying request", http.StatusInternalServerError)
