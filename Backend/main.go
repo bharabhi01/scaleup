@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
+
 	"github.com/bharabhi01/scaleup/Backend/config"
 	"github.com/bharabhi01/scaleup/Backend/loadbalancer"
 )
@@ -45,7 +47,7 @@ func main() {
 		}
 
 		w.WriteHeader(resp.StatusCode)
-		_, err = http.Copy(w, resp.Body)
+		_, err = io.Copy(w, resp.Body)
 		if err != nil {
 			log.Printf("Error copying response body: %v", err)
 		}
